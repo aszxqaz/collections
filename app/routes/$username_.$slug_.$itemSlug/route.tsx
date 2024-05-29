@@ -14,7 +14,7 @@ import { CollectionHeader } from '~/components/CollectionHeader';
 import { ItemComment } from '~/components/Comment';
 import { ItemsTable } from '~/components/ItemsTable';
 import { TextNoContent } from '~/components/TextNoContent';
-import { useOptionalUser } from '~/utils';
+import { useRootLoaderData } from '~/root';
 import { RepeatSkeleton } from '../components/default-skeleton';
 import { CreateItemCommentForm } from './create-comment-form';
 
@@ -58,8 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function ItemPage() {
   const { item } = useLoaderData<typeof loader>();
-
-  const user = useOptionalUser();
+  const rootLoaderData = useRootLoaderData();
   return (
     <Container>
       <Stack>
@@ -80,8 +79,12 @@ export default function ItemPage() {
             {item => {
               if (!item) return null;
               console.log(item);
-              const canLike = !!user?.username;
-              const hasLiked = item.likers.find(liker => liker.username == user?.username);
+              const canLike =
+                !rootLoaderData?.user?.rights?.isBlocked &&
+                item.username != rootLoaderData?.user?.username;
+              const hasLiked = item.likers.find(
+                liker => liker.username == rootLoaderData?.user?.username,
+              );
               return (
                 <Stack>
                   <DefaultCard>
@@ -129,7 +132,7 @@ export default function ItemPage() {
                       <ItemComment key={comment.id} comment={comment} user={comment.user} />
                     ))
                   )}
-                  {user && (
+                  {rootLoaderData?.user && (
                     <Stack mt="md">
                       <CreateItemCommentForm item={item} />
                     </Stack>
