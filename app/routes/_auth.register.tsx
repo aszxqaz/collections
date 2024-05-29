@@ -5,7 +5,7 @@ import { ValidatedForm } from 'remix-validated-form';
 import { createUser, findUser } from '~/.server/models/user.server';
 import { createUserSession } from '~/.server/session';
 import { registerValidator } from '~/common/schemas';
-import { ValidatedButton, ValidatedTextInput } from './_components/validated-form';
+import { ValidatedButton, ValidatedTextInput } from '../components/validated-form';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();

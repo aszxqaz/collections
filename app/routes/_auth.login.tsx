@@ -7,7 +7,7 @@ import { findUserWithPassword } from '~/.server/models/user.server';
 import { createUserSession } from '~/.server/session';
 import { safeRedirect } from '~/.server/utils';
 import { loginValidator } from '~/common/schemas';
-import { ValidatedButton, ValidatedTextInput } from './_components/validated-form';
+import { ValidatedButton, ValidatedTextInput } from '../components/validated-form';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();

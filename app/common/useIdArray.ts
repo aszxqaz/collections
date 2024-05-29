@@ -15,5 +15,5 @@ export function useIdArray() {
     setIds([]);
   }, []);
 
-  return { ids, deleteOne, appendRandom, clear };
+  return { ids, deleteOne, appendRandom, clear, setIds };
 }

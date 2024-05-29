@@ -1,21 +1,23 @@
 import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
+import './styles.css';
 
 import {
   AppShell,
   Box,
-  Burger,
   Button,
   ColorSchemeScript,
   Group,
-  MantineColorScheme,
   MantineProvider,
   Space,
   Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { Notifications } from '@mantine/notifications';
 import { LoaderFunctionArgs } from '@remix-run/node';
 import {
   Form,
+  Link,
   Links,
   Meta,
   NavLink,
@@ -24,13 +26,14 @@ import {
   ScrollRestoration,
   json,
   useLoaderData,
+  useLocation,
   useNavigate,
+  useRouteLoaderData,
 } from '@remix-run/react';
 import { IconUser } from '@tabler/icons-react';
-import { getUser } from './.server/session';
-import { ColorSchemeSwitcher } from './ColorSchemeSwitcher';
-
-import useLocalStorageState from 'use-local-storage-state';
+import { getUser } from '~/.server/session';
+import { ColorSchemeSwitcher } from '~/ColorSchemeSwitcher';
+import { Logo } from '~/components/Logo';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -53,35 +56,33 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
-  console.log(user);
   return json({ user });
 };
 
 export default function App() {
-  const [initialColorScheme] = useLocalStorageState<MantineColorScheme>('color-scheme', {
-    defaultValue: 'light',
-  });
   const [opened, { toggle }] = useDisclosure();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { user } = useLoaderData<typeof loader>();
+  const redirectSearchParam = `redirectTo=${pathname}`;
 
   return (
-    <MantineProvider defaultColorScheme={initialColorScheme as MantineColorScheme}>
-      <AppShell
-        // navbar={{
-        //   width: 300,
-        //   breakpoint: 'sm',
-        //   collapsed: { mobile: !opened },
-        // }}
-        padding="md"
-      >
+    <MantineProvider defaultColorScheme={'auto'}>
+      <Notifications />
+      <AppShell padding="md">
         <AppShell.Header pos="relative">
           <Group p="md" justify="space-between">
             <Group>
-              <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-              <Box>Logo</Box>
+              {/* <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" /> */}
+              <Box visibleFrom="sm">
+                <Link to="/">
+                  <Box c="blue" w="10rem">
+                    <Logo />
+                  </Box>
+                </Link>
+              </Box>
               {user && (
-                <>
+                <Group visibleFrom="sm">
                   <NavLink
                     to={`/${user.username}`}
                     className={({}) =>
@@ -90,7 +91,17 @@ export default function App() {
                   >
                     Profile
                   </NavLink>
-                </>
+                  {user.rights?.isAdmin && !user.rights.isBlocked && (
+                    <NavLink
+                      to="/admin"
+                      className={({}) =>
+                        'mantine-focus-auto m_849cf0da m_b6d8b162 mantine-Text-root mantine-Anchor-root'
+                      }
+                    >
+                      Admin
+                    </NavLink>
+                  )}
+                </Group>
               )}
             </Group>
             <Group>
@@ -100,7 +111,7 @@ export default function App() {
                     <IconUser />
                     <Text fw={600}>{user.username}</Text>
                   </Group>
-                  <Form action="/logout" method="post">
+                  <Form action={`/logout?${redirectSearchParam}`} method="post">
                     <Button variant="outline" type="submit">
                       Log out
                     </Button>
@@ -108,21 +119,30 @@ export default function App() {
                 </>
               ) : (
                 <>
-                  <Button variant="outline" onClick={() => navigate('/login')}>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(`/login?${redirectSearchParam}`)}
+                  >
                     Sign in
                   </Button>
-                  <Button onClick={() => navigate('/register')}>Sign up</Button>
+                  <Button onClick={() => navigate(`/register?${redirectSearchParam}`)}>
+                    Sign up
+                  </Button>
                 </>
               )}
               <ColorSchemeSwitcher />
             </Group>
           </Group>
         </AppShell.Header>
-        <AppShell.Main p={0}>
+        <AppShell.Main pt="xl">
           <Outlet />
           <Space h="3rem" />
         </AppShell.Main>
       </AppShell>
     </MantineProvider>
   );
+}
+
+export function useRootLoaderData() {
+  return useRouteLoaderData<typeof loader>('root');
 }

@@ -7,6 +7,15 @@ generator client {
     provider = "prisma-client-js"
 }
 
+generator prismaClassGenerator {
+    provider                 = "prisma-class-generator"
+    output                   = "../app/generated/"
+    dryRun                   = false
+    useSwagger               = false
+    makeIndexFile            = true
+    useNonNullableAssertions = true
+}
+
 model User {
     username String @id
 
@@ -15,12 +24,25 @@ model User {
 
     password    Password?
     collections Collection[]
+
+    comments Comment[]
+    items    Item[]
+    rights   Rights?
+}
+
+model Rights {
+    id        Int     @id @default(autoincrement())
+    username  String  @unique
+    isAdmin   Boolean @default(false)
+    isBlocked Boolean @default(false)
+
+    user User @relation(fields: [username], references: [username], onDelete: Cascade)
 }
 
 model Password {
     hash String
 
-    user     User   @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
+    user     User   @relation(fields: [username], references: [username], onDelete: Cascade)
     username String @unique
 }
 
@@ -45,11 +67,8 @@ model Collection {
     name        String
     slug        String
     description String
-    // categoryId  Int
-    // ownerId     Int
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
-    // schemes     ItemPropScheme[]
 
     user     User   @relation(fields: [username], references: [username], onDelete: Cascade, onUpdate: Cascade)
     username String
@@ -57,56 +76,82 @@ model Collection {
     Category Category @relation(fields: [category], references: [name], onDelete: Cascade, onUpdate: Cascade)
     category String
 
-    schemes ItemPropScheme[]
+    schemes Scheme[]
     items   Item[]
 
     @@id([username, slug])
 }
 
-enum ItemPropType {
+enum PropertyType {
     Int
-    LineText
-    MultilineText
+    Line
+    Multiline
     Bool
     Date
 }
 
-model ItemPropScheme {
+model Scheme {
     id   Int          @id @default(autoincrement())
     name String
-    type ItemPropType
+    type PropertyType
 
     collection Collection @relation(fields: [username, slug], references: [username, slug], onDelete: Cascade)
     username   String
     slug       String
 
     items      Item[]
-    properties ItemProp[]
+    properties Property[]
 
     @@index([username, slug])
 }
 
 model Item {
-    id   Int    @id @default(autoincrement())
-    name String
+    id        Int      @id @default(autoincrement())
+    name      String
+    slug      String
+    createdAt DateTime @default(now())
 
-    collection Collection @relation(fields: [username, slug], references: [username, slug], onDelete: Cascade)
+    collection Collection @relation(fields: [username, collSlug], references: [username, slug], onDelete: Cascade)
     username   String
-    slug       String
+    collSlug   String
 
-    schemes    ItemPropScheme[]
-    properties ItemProp[]
+    schemes    Scheme[]
+    properties Property[]
+    tags       Tag[]
+    likers     User[]
+    comments   Comment[]
 
-    @@index([username, slug])
+    @@unique([username, collSlug, slug])
+    @@index([username, collSlug])
+    @@index([createdAt])
 }
 
-model ItemProp {
+model Comment {
+    id        Int      @id @default(autoincrement())
+    content   String
+    createdAt DateTime @default(now())
+
+    user     User   @relation(fields: [username], references: [username], onDelete: Cascade)
+    username String
+
+    item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+    itemId Int
+
+    @@index([itemId])
+}
+
+model Tag {
+    name  String @id
+    items Item[]
+}
+
+model Property {
     value String
 
     item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
     itemId Int
 
-    scheme   ItemPropScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+    scheme   Scheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
     schemeId Int
 
     @@id([itemId, schemeId])

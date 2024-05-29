@@ -15,7 +15,6 @@ function getPrismaClient() {
       },
     },
   });
-  client.$connect();
   return client;
 }
 
