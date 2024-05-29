@@ -10,5 +10,3 @@ export function getDateFromNow(date: Date | string) {
 export function formatPrettyDate(date: Date) {
   return dayjs(date).format('MMM D, YYYY h:mm A');
 }
-
-export { dayjs };

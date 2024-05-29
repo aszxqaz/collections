@@ -1,4 +1,4 @@
-import { formatPrettyDate } from '~/dayjs';
+import { formatPrettyDate } from '~/time';
 import { UserWithRights } from '~/types';
 import { SortableTable, SortableTableProps } from './SortableTable';
 

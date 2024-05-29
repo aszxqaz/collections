@@ -4,7 +4,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Suspense } from 'react';
 import { CollectionName } from '~/components/CollectionHeader';
 import { TextNoContent } from '~/components/TextNoContent';
-import { getDateFromNow } from '~/dayjs';
+import { getDateFromNow } from '~/time';
 import { useRootLoaderData } from '../../root';
 import { RepeatSkeleton } from '../components/default-skeleton';
 import { useCurrentLoaderData } from './route';

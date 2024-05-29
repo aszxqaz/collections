@@ -9,7 +9,7 @@ type ItemsTableProps = {
   items: SerializeFrom<ItemWithProperties>[];
   schemes: SerializeFrom<Scheme>[];
   caption?: string;
-  onRowClick: SortableTableProps['onRowClick'];
+  onRowClick?: SortableTableProps['onRowClick'];
 };
 
 export function ItemsTable({ caption, items, schemes, onRowClick }: ItemsTableProps) {

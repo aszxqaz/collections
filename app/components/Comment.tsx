@@ -1,7 +1,7 @@
 import { Avatar, Box, Group, Paper, Text } from '@mantine/core';
 import { Comment, User } from '@prisma/client';
 import { SerializeFrom } from '@remix-run/node';
-import { getDateFromNow } from '~/dayjs';
+import { getDateFromNow } from '~/time';
 import { DefaultCard } from './ui';
 
 type ItemCommentProps = {

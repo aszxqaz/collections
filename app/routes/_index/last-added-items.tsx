@@ -1,5 +1,6 @@
 import { Stack } from '@mantine/core';
-import { Link } from '@remix-run/react';
+import { useNavigate } from '@remix-run/react';
+import { Fragment } from 'react/jsx-runtime';
 import { AwaitedLoaderData } from '~/.server/utils';
 import { DefaultCard } from '~/components';
 import { CollectionHeader } from '~/components/CollectionHeader';
@@ -11,20 +12,27 @@ type LastAddedItemsProps = {
 };
 
 export function LastAddedItems({ items }: LastAddedItemsProps) {
+  const navigate = useNavigate();
   return (
     <Stack>
       {items.map((item, i) => {
         const { collection } = item;
-        const link = `/${collection.username}/${collection.slug}`;
         return (
-          <Link key={item.id} to={link}>
+          <Fragment key={item.id}>
             <DefaultCard>
               <Stack>
                 <CollectionHeader collection={collection} />
-                <ItemsTable items={[item]} schemes={collection.schemes} />
+                <ItemsTable
+                  items={[item]}
+                  schemes={collection.schemes}
+                  onRowClick={_ => {
+                    const itemLink = `/${collection.username}/${collection.slug}/${item.slug}`;
+                    navigate(itemLink);
+                  }}
+                />
               </Stack>
             </DefaultCard>
-          </Link>
+          </Fragment>
         );
       })}
     </Stack>
