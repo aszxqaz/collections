@@ -5,6 +5,7 @@ import { IconMoon, IconSun } from '@tabler/icons-react';
 export function ColorSchemeSwitcher() {
   const [storageValue, setStorageValue] = useLocalStorage<MantineColorScheme>({
     key: 'color-scheme',
+    defaultValue: 'light',
   });
   const { setColorScheme } = useMantineColorScheme();
 
@@ -15,9 +16,9 @@ export function ColorSchemeSwitcher() {
     setColorScheme(theme);
   };
 
-  return storageValue ? (
+  return (
     <ActionIcon size="lg" variant="outline" onClick={toggleColorScheme}>
       {storageValue == 'dark' ? <IconSun /> : <IconMoon />}
     </ActionIcon>
-  ) : null;
+  );
 }
